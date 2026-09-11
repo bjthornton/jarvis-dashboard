@@ -3,135 +3,506 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>JARVIS Holographic Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            color: #00FFFF;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .hologram-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 150, 255, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .grid {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.05) 25%, rgba(0, 255, 255, 0.05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, 0.05) 75%, rgba(0, 255, 255, 0.05) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(to bottom, rgba(0, 50, 100, 0.9), rgba(0, 30, 60, 0.7));
+            border-bottom: 3px solid #00FFFF;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: #00FFFF;
+            text-shadow: 0 0 30px #00FFFF, 0 0 60px #0088FF;
+        }
+
+        .subtitle {
+            font-size: 0.8em;
+            color: #00AAFF;
+            letter-spacing: 2px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .online-indicator {
+            width: 12px;
+            height: 12px;
+            background: #00FF41;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #00FF41;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px #00FF41; }
+            50% { box-shadow: 0 0 30px #00FF41, 0 0 40px rgba(0, 255, 65, 0.5); }
+        }
+
+        .status-text {
+            color: #00FF41;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00FF41;
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .panel {
+            background: rgba(0, 20, 40, 0.8);
+            border: 2px solid #00FFFF;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.5),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00FFFF, transparent);
+        }
+
+        .panel-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #00FFFF;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00FFFF;
+            border-bottom: 1px solid #00FFFF;
+            padding-bottom: 10px;
+        }
+
+        .stat-bar {
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #0099FF;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00FFFF;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00FFFF, #0088FF);
+            box-shadow: 0 0 10px #00FFFF;
+            transition: width 0.3s;
+        }
+
+        .stat-value {
+            font-size: 0.9em;
+            color: #00FF41;
+            text-align: right;
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            filter: drop-shadow(0 0 30px #00FFFF);
+            max-width: 100%;
+        }
+
+        .hologram-label {
+            color: #0088FF;
+            font-size: 0.9em;
+            margin-top: 10px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px #00FFFF;
+            text-transform: uppercase;
+        }
+
+        .data-readout {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .data-item {
+            background: rgba(0, 100, 150, 0.2);
+            border: 1px solid #00FFFF;
+            border-radius: 3px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .data-label {
+            font-size: 0.75em;
+            color: #0088FF;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .data-value {
+            font-size: 1.1em;
+            color: #00FF41;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00FF41;
+            margin-top: 5px;
+        }
+
+        .alerts-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        .alert {
+            padding: 8px 10px;
+            border-left: 3px solid #00FFFF;
+            background: rgba(0, 100, 150, 0.2);
+            font-size: 0.8em;
+            display: flex;
+            gap: 8px;
+        }
+
+        .alert-icon {
+            min-width: 15px;
+        }
+
+        .alert-success { border-left-color: #00FF41; color: #00FF41; }
+        .alert-warning { border-left-color: #FFAA00; color: #FFAA00; }
+        .alert-info { border-left-color: #00FFFF; color: #00FFFF; }
+
+        footer {
+            background: linear-gradient(to top, rgba(0, 50, 100, 0.9), rgba(0, 30, 60, 0.7));
+            border-top: 3px solid #00FFFF;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.6);
+        }
+
+        .command-prompt {
+            color: #00FF41;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00FF41;
+        }
+
+        #cmd-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #00FFFF;
+            color: #00FFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            outline: none;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        #cmd-input:focus {
+            border-bottom-color: #00FF41;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        #cmd-input::placeholder {
+            color: #0088FF;
+        }
+
+        .time-display {
+            color: #00FF41;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00FF41;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="hologram-bg"></div>
+    <div class="grid"></div>
+    
     <div class="container">
-        <!-- Background grid effect -->
-        <div class="grid-background"></div>
-        
-        <!-- Top bar with JARVIS branding -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="title">J.A.R.V.I.S.</h1>
-                <p class="subtitle">Just A Rather Very Intelligent System</p>
+        <header>
+            <div>
+                <div class="title">J.A.R.V.I.S.</div>
+                <div class="subtitle">Just A Rather Very Intelligent System</div>
             </div>
-            <div class="status-indicator">
-                <span class="pulse"></span>
-                <span class="status-text">SYSTEM ONLINE</span>
+            <div class="status">
+                <div class="online-indicator"></div>
+                <span class="status-text">ONLINE</span>
             </div>
         </header>
 
-        <!-- Main dashboard -->
-        <main class="dashboard">
-            <!-- Left panel - System Status -->
-            <div class="panel left-panel">
-                <div class="panel-header">⚙️ SYSTEM STATUS</div>
-                <div class="status-grid">
-                    <div class="status-item">
-                        <div class="status-label">CPU LOAD</div>
-                        <div class="status-bar">
-                            <div class="status-fill" style="width: 72%"></div>
-                        </div>
-                        <div class="status-value">72%</div>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-label">MEMORY</div>
-                        <div class="status-bar">
-                            <div class="status-fill" style="width: 58%"></div>
-                        </div>
-                        <div class="status-value">58%</div>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-label">NETWORK</div>
-                        <div class="status-bar">
-                            <div class="status-fill" style="width: 95%"></div>
-                        </div>
-                        <div class="status-value">95%</div>
-                    </div>
-                    <div class="status-item">
-                        <div class="status-label">STORAGE</div>
-                        <div class="status-bar">
-                            <div class="status-fill" style="width: 43%"></div>
-                        </div>
-                        <div class="status-value">43%</div>
-                    </div>
+        <div class="main-content">
+            <!-- Left Panel -->
+            <div class="panel">
+                <div class="panel-title">SYSTEM STATUS</div>
+                
+                <div class="stat-bar">
+                    <div class="stat-label">CPU Load</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 72%"></div></div>
+                    <div class="stat-value">72%</div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">Memory</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 58%"></div></div>
+                    <div class="stat-value">58%</div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">Network</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
+                    <div class="stat-value">95%</div>
+                </div>
+
+                <div class="stat-bar">
+                    <div class="stat-label">Storage</div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 43%"></div></div>
+                    <div class="stat-value">43%</div>
                 </div>
             </div>
 
-            <!-- Center top panel - Tactical Display -->
+            <!-- Center Panel -->
             <div class="panel center-panel">
-                <div class="panel-header">🎯 TACTICAL HOLOGRAM</div>
-                <div class="hologram-container">
-                    <div class="hologram-sphere">
-                        <canvas id="radarCanvas" width="260" height="260"></canvas>
-                    </div>
-                    <div class="hologram-label">THREAT ASSESSMENT</div>
-                </div>
+                <div class="panel-title" style="width: 100%; text-align: center;">TACTICAL HOLOGRAM</div>
+                <canvas id="radarCanvas" width="300" height="300"></canvas>
+                <div class="hologram-label">THREAT ASSESSMENT</div>
             </div>
 
-            <!-- Right panel - Data Readout -->
-            <div class="panel right-panel">
-                <div class="panel-header">📊 DATA READOUT</div>
-                <div class="data-grid">
+            <!-- Right Panel -->
+            <div class="panel">
+                <div class="panel-title">DATA READOUT</div>
+                
+                <div class="data-readout">
                     <div class="data-item">
-                        <div class="data-label">REACTOR STATUS</div>
+                        <div class="data-label">Reactor Status</div>
                         <div class="data-value">100%</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">SHIELD STRENGTH</div>
+                        <div class="data-label">Shield Strength</div>
                         <div class="data-value">89%</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">POWER OUTPUT</div>
+                        <div class="data-label">Power Output</div>
                         <div class="data-value">8.5 GW</div>
                     </div>
                     <div class="data-item">
-                        <div class="data-label">COMMS SIGNAL</div>
+                        <div class="data-label">Comms Signal</div>
                         <div class="data-value">STRONG</div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Bottom panel - Alerts -->
-            <div class="panel alerts-panel">
-                <div class="panel-header">⚠️ ALERTS & NOTIFICATIONS</div>
-                <div class="alerts-container">
-                    <div class="alert alert-info">
-                        <span class="alert-icon">⚡</span>
-                        <span class="alert-text">Power systems nominal</span>
-                    </div>
-                    <div class="alert alert-success">
-                        <span class="alert-icon">✓</span>
-                        <span class="alert-text">All systems operational</span>
-                    </div>
-                    <div class="alert alert-warning">
-                        <span class="alert-icon">⚠</span>
-                        <span class="alert-text">Backup power at 87%</span>
-                    </div>
-                    <div class="alert alert-info">
-                        <span class="alert-icon">📡</span>
-                        <span class="alert-text">Satellite link active</span>
-                    </div>
-                    <div class="alert alert-success">
-                        <span class="alert-icon">✓</span>
-                        <span class="alert-text">AI core functioning optimally</span>
-                    </div>
+        <!-- Alerts Footer Section -->
+        <div class="panel" style="margin: 0 20px 20px; height: auto; max-height: 150px;">
+            <div class="panel-title">ALERTS & NOTIFICATIONS</div>
+            <div class="alerts-section">
+                <div class="alert alert-info">
+                    <span class="alert-icon">⚡</span>
+                    <span>Power systems nominal</span>
+                </div>
+                <div class="alert alert-success">
+                    <span class="alert-icon">✓</span>
+                    <span>All systems operational</span>
+                </div>
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠</span>
+                    <span>Backup power at 87%</span>
+                </div>
+                <div class="alert alert-info">
+                    <span class="alert-icon">📡</span>
+                    <span>Satellite link active</span>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <!-- Bottom bar with commands -->
-        <footer class="footer">
-            <div class="command-line">
-                <span class="prompt">JARVIS></span>
-                <input type="text" id="commandInput" class="command-input" placeholder="Enter command..." autocomplete="off">
-                <span id="timestamp" style="color: #00ff41; text-shadow: 0 0 5px #00ff41; margin-left: 20px;">00:00:00</span>
-            </div>
+        <footer>
+            <span class="command-prompt">JARVIS></span>
+            <input type="text" id="cmd-input" placeholder="Enter command..." autocomplete="off">
+            <span class="time-display" id="time-display">00:00:00</span>
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('time-display').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Radar animation
+        function drawRadar() {
+            const canvas = document.getElementById('radarCanvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const maxRadius = 120;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Grid circles
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 3; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, (maxRadius / 3) * i, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Crosshairs
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - maxRadius - 20);
+            ctx.lineTo(centerX, centerY + maxRadius + 20);
+            ctx.moveTo(centerX - maxRadius - 20, centerY);
+            ctx.lineTo(centerX + maxRadius + 20, centerY);
+            ctx.stroke();
+
+            // Rotating sweep
+            const now = Date.now();
+            const angle = (now / 3000) % (Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(
+                centerX + Math.cos(angle - Math.PI / 2) * maxRadius,
+                centerY + Math.sin(angle - Math.PI / 2) * maxRadius
+            );
+            ctx.stroke();
+
+            // Blips
+            ctx.fillStyle = 'rgba(0, 255, 65, 0.9)';
+            for (let i = 0; i < 5; i++) {
+                const blipAngle = (angle + (i * Math.PI * 2 / 5)) % (Math.PI * 2);
+                const blipDistance = maxRadius * (0.3 + Math.random() * 0.7);
+                const x = centerX + Math.cos(blipAngle - Math.PI / 2) * blipDistance;
+                const y = centerY + Math.sin(blipAngle - Math.PI / 2) * blipDistance;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Center dot
+            ctx.fillStyle = '#00FFFF';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            requestAnimationFrame(drawRadar);
+        }
+
+        // Command handler
+        document.getElementById('cmd-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const cmd = e.target.value.toLowerCase();
+                if (cmd.includes('hello')) {
+                    alert('Good day, sir. How may I be of service?');
+                } else if (cmd.includes('status')) {
+                    alert('All systems nominal. No threats detected.');
+                } else if (cmd.includes('power')) {
+                    alert('Arc reactor at 100% capacity.');
+                }
+                e.target.value = '';
+            }
+        });
+
+        // Initialize
+        updateTime();
+        setInterval(updateTime, 1000);
+        drawRadar();
+    </script>
 </body>
 </html>
