@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Background grid effect -->
+        <div class="grid-background"></div>
+        
+        <!-- Top bar with JARVIS branding -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">J.A.R.V.I.S.</h1>
+                <p class="subtitle">Just A Rather Very Intelligent System</p>
+            </div>
+            <div class="status-indicator">
+                <span class="pulse"></span>
+                <span class="status-text">ONLINE</span>
+            </div>
+        </header>
+
+        <!-- Main dashboard -->
+        <main class="dashboard">
+            <!-- Left panel -->
+            <div class="panel left-panel">
+                <div class="panel-header">SYSTEM STATUS</div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">CPU</div>
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 72%"></div>
+                        </div>
+                        <div class="status-value">72%</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">MEMORY</div>
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 58%"></div>
+                        </div>
+                        <div class="status-value">58%</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">NETWORK</div>
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 95%"></div>
+                        </div>
+                        <div class="status-value">95%</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">STORAGE</div>
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 43%"></div>
+                        </div>
+                        <div class="status-value">43%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center panel -->
+            <div class="panel center-panel">
+                <div class="panel-header">TACTICAL DISPLAY</div>
+                <div class="hologram-container">
+                    <canvas id="radarCanvas" width="300" height="300"></canvas>
+                    <div class="hologram-label">THREAT ASSESSMENT</div>
+                </div>
+                <div class="info-display">
+                    <div class="info-item">
+                        <span class="label">TIMESTAMP:</span>
+                        <span class="value" id="timestamp">00:00:00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">LOCATION:</span>
+                        <span class="value">STARK TOWER</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right panel -->
+            <div class="panel right-panel">
+                <div class="panel-header">ALERTS & NOTIFICATIONS</div>
+                <div class="alerts-container">
+                    <div class="alert alert-info">
+                        <span class="alert-icon">⚡</span>
+                        <span class="alert-text">Power systems nominal</span>
+                    </div>
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✓</span>
+                        <span class="alert-text">All systems operational</span>
+                    </div>
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">⚠</span>
+                        <span class="alert-text">Backup power at 87%</span>
+                    </div>
+                    <div class="alert alert-info">
+                        <span class="alert-icon">📡</span>
+                        <span class="alert-text">Satellite link active</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom bar with commands -->
+        <footer class="footer">
+            <div class="command-line">
+                <span class="prompt">JARVIS></span>
+                <input type="text" id="commandInput" class="command-input" placeholder="Enter command..." autocomplete="off">
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
